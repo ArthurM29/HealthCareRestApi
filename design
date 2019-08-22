@@ -1,0 +1,51 @@
+*** Clinic service ***
+
+* SignUp
+
+* User resource, route: /user, actions: create read update delete
+
+{
+  "email"
+  "password"
+  "confirm_password"
+  "user_name"
+  "first_name"
+  "last_name"
+  "address_1"
+  "address_2"
+  "city"
+  "state"
+  "zip_code"
+  "country"
+  "phone"
+}
+
+* Organization resource, route: /organization, actions: create read
+
+{
+    "organization_name": "{{ts_org_name}}",
+    "organization_address_1": "Brockton Avenue",
+    "organization_address_2": "777",
+    "organization_city": "Montgomery",
+    "organization_postal_code": "12345",
+    "organization_phone": "",
+    "user_e_mail": "{{ts_admin_userEmail}}",
+    "user_name": "{{ts_admin_username}}",
+    "user_first_name": "John",
+    "user_last_name": "Doe",
+    "password": "{{ts_admin_password}}",
+    "confirm_password": "{{ts_admin_password}}",
+    "organization_country_id": "US",
+    "organization_state_id": "AL"
+}
+
+* Location resource, route: /clinic, actions: create read update delete
+
+
+
+* Device resource, route: /device, actions: create read update delete pair
+
+
+
+
+*** Device service ***
