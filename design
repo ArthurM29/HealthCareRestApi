@@ -1,6 +1,38 @@
 *** Clinic service ***
 
-* SignUp
+admin user portal/users
+admin registers clinic portal/clinics
+admin can add users portal/users
+admin can register instrument portal/clinics/instruments
+admin can review tests: instruments/tests
+
+user can send tests /instruments/tests device/tests
+
+** Register organization
+
+POST /register
+
+"admin_email"
+"admin_first_name"
+"admin_last_name"
+
+"password"
+"confirm_password"
+"organization_name"
+"organization_address_1"
+"organization_address_2"
+"organization_city"
+"organization_postal_code": "12345",
+"organization_phone": "",
+"user_e_mail": "{{ts_admin_userEmail}}",
+"user_name": "{{ts_admin_username}}",
+"user_first_name": "John",
+"user_last_name": "Doe",
+"password": "{{ts_admin_password}}",
+"confirm_password": "{{ts_admin_password}}",
+"organization_country_id": "US",
+"organization_state_id": "AL"
+
 
 * User resource, route: /user, actions: create read update delete
 
