@@ -11,16 +11,12 @@ def non_empty_string(s):
     return s
 
 
-def valid_email(email):
-    if not validate_email(email):
-        raise ValueError("Invalid email.")
-    return email
-
-
 class User(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('email', type=non_empty_string, required=True, help='This field cannot be left blank!')
     parser.add_argument('password', type=non_empty_string, required=True, help='This field cannot be left blank!')
+    parser.add_argument('confirm_password', type=non_empty_string, required=True,
+                             help='This field cannot be left blank!')
     parser.add_argument('first_name', type=str)
     parser.add_argument('last_name', type=str)
     parser.add_argument('address_1', type=str)
@@ -35,13 +31,11 @@ class User(Resource):
     def validate_email(cls, data):
         if not validate_email(data['email']):
             abort(400, message='Invalid email.')
+        data['email'] = data['email'].lower()
 
     def post(self):
         """ Create a new user. """
-        User.parser.add_argument('confirm_password', type=non_empty_string, required=True,
-                                 help='This field cannot be left blank!')
         data = User.parser.parse_args(strict=True)  # return 400 if unexpected arguments received
-
         User.validate_email(data)
 
         if UserModel.find_by_email(data['email']):
@@ -70,19 +64,28 @@ class User(Resource):
             abort(404, message='User not found.')
 
     def put(self, id):
-        User.parser.remove_argument('confirm_password')
-        data = User.parser.parse_args()
+        """ Update user by id. """
+        data = User.parser.parse_args(strict=True)
         User.validate_email(data)
-
         user = UserModel.find_by_id(id)
+
+        if UserModel.find_by_email(data['email']) and data['email'] != user.email:
+            abort(400, message="User with email '{}' already exists.".format(data['email']))
+
+        if data['password'] != data['confirm_password']:
+            abort(400, message='Passwords do not match.')
+
         if user:
-            user.update(data)
+            # filter out 'confirm_password' as not present in UserModel
+            new_data = {k: v for k, v in data.items() if k != 'confirm_password'}
+            user.update(new_data)
             user.save_to_db()
             return user.to_json()
 
         abort(404, message='User not found.')
 
     def delete(self, id):
+        """ Delete user by id. """
         user = UserModel.find_by_id(id)
         if user:
             user.delete_from_db()

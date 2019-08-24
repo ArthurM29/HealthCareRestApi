@@ -1,5 +1,5 @@
-d = {'a': 1, 'b': 2, 'c': 3}
+from db import db
+from models.user import UserModel
 
-new_dict = {k: v for k, v in d.items() if k != 'c'}
-
-print(new_dict)
+user = UserModel.query()
+print(type(user))

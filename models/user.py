@@ -18,7 +18,7 @@ class UserModel(db.Model):
     phone = db.Column(db.String(80))
 
     def to_json(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns if c.name != 'password'}
 
     def update(self, data):
         UserModel.query.filter_by(id=self.id).update(data)
@@ -39,4 +39,4 @@ class UserModel(db.Model):
 
     @classmethod
     def find_by_id(cls, _id):
-        return cls.query.filter_by(id=_id).first()
+        return cls.query.get(_id)
