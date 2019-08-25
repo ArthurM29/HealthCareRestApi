@@ -16,8 +16,9 @@ class UserModel(db.Model):
     zip_code = db.Column(db.String(20))
     country = db.Column(db.String(80))
     phone = db.Column(db.String(80))
+    user_level = db.Column(db.String(20))
 
-    def to_json(self):
+    def json(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns if c.name != 'password'}
 
     def update(self, data):

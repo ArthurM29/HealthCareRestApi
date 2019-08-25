@@ -26,6 +26,7 @@ class User(Resource):
     parser.add_argument('zip_code', type=str)
     parser.add_argument('country', type=str)
     parser.add_argument('phone', type=str)
+    parser.add_argument('user_level', type=str)
 
     @classmethod
     def validate_email(cls, data):
@@ -33,8 +34,8 @@ class User(Resource):
             abort(400, message='Invalid email.')
         data['email'] = data['email'].lower()
 
-    def post(self):
-        """ Create a new user. """
+    @classmethod
+    def validate_arguments(cls, verb):
         data = User.parser.parse_args(strict=True)  # return 400 if unexpected arguments received
         User.validate_email(data)
 
@@ -46,41 +47,41 @@ class User(Resource):
 
         # filter out 'confirm_password' as not present in UserModel
         new_data = {k: v for k, v in data.items() if k != 'confirm_password'}
+        return new_data
 
-        user = UserModel(**new_data)
+    def post(self):
+        #TODO should post return Location header with full URI of the created resource ?
+        """ Create a new user. """
+        data = User.validate_arguments()
+        user = UserModel(**data)
         user.save_to_db()
 
-        return user.to_json(), 201
+        return user.json(), 201
 
     def get(self, id=None):
         """ Retrieve all users from DB. """
         if not id:
-            return {'users': [user.to_json() for user in UserModel.query.all()]}
+            return {'users': [user.json() for user in UserModel.query.all()]}
 
         user = UserModel.find_by_id(id)
         if user:
-            return user.to_json()
+            return user.json()
         else:
             abort(404, message='User not found.')
 
     def put(self, id):
         """ Update user by id. """
-        data = User.parser.parse_args(strict=True)
-        User.validate_email(data)
-        user = UserModel.find_by_id(id)
 
         if UserModel.find_by_email(data['email']) and data['email'] != user.email:
             abort(400, message="User with email '{}' already exists.".format(data['email']))
 
-        if data['password'] != data['confirm_password']:
-            abort(400, message='Passwords do not match.')
+        user = UserModel.find_by_id(id)
 
         if user:
-            # filter out 'confirm_password' as not present in UserModel
-            new_data = {k: v for k, v in data.items() if k != 'confirm_password'}
-            user.update(new_data)
+            data = User.validate_arguments()
+            user.update(data)
             user.save_to_db()
-            return user.to_json()
+            return user.json()
 
         abort(404, message='User not found.')
 

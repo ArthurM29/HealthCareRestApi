@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Api
 
 from resources.user import User
+from resources.organization import Organization
 
 
 app = Flask(__name__)
@@ -14,6 +15,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # turn off Flask-SQLAlchem
 
 api.add_resource(User, '/users', endpoint='users')
 api.add_resource(User, '/users/<string:id>', endpoint='user')
+api.add_resource(Organization, '/organizations', endpoint='organizations')
+api.add_resource(Organization, '/organizations/<string:id>', endpoint='organization')
 
 
 if __name__ == '__main__':
@@ -32,3 +35,6 @@ if __name__ == '__main__':
 
 #TODO is it worth to handle exceptions for all db actions and return 500 ?
 #  TODO consder using first_or_404 or get_or_404 methods
+# notes
+# * IDs should be opaque, globally unique, avoid sequential numbers, use uuids
+# *
