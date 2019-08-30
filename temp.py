@@ -1,5 +1,17 @@
-from db import db
-from models.user import UserModel
+class Dog:
+    def bark(self):
+        print('haf-haf')
 
-user = UserModel.query()
-print(type(user))
+
+class Cat:
+    def mew(self):
+        print('myau-myau')
+
+
+class Anasun(Dog, Cat):
+    pass
+
+
+ez = Anasun()
+ez.bark()
+ez.mew()

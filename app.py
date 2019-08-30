@@ -11,6 +11,7 @@ api = Api(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # turn off Flask-SQLAlchemy modification tracker and leave SQLAlchemy tracker
+app.config['BUNDLE_ERRORS'] = True
 
 
 api.add_resource(User, '/users', endpoint='users')

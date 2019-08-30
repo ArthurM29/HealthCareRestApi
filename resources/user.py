@@ -35,7 +35,7 @@ class User(Resource):
         data['email'] = data['email'].lower()
 
     @classmethod
-    def validate_arguments(cls, verb):
+    def validate_arguments(cls):
         data = User.parser.parse_args(strict=True)  # return 400 if unexpected arguments received
         User.validate_email(data)
 
@@ -72,8 +72,8 @@ class User(Resource):
     def put(self, id):
         """ Update user by id. """
 
-        if UserModel.find_by_email(data['email']) and data['email'] != user.email:
-            abort(400, message="User with email '{}' already exists.".format(data['email']))
+        # if UserModel.find_by_email(data['email']) and data['email'] != user.email:
+        #     abort(400, message="User with email '{}' already exists.".format(data['email']))
 
         user = UserModel.find_by_id(id)
 
