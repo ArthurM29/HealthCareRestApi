@@ -3,6 +3,7 @@ from validate_email import validate_email
 
 from models.user import UserModel
 from models.organization import OrganizationModel
+from resources.base_resource import BaseResource
 
 
 def non_empty_string(s):
@@ -11,7 +12,10 @@ def non_empty_string(s):
     return s
 
 
-class Organization(Resource):
+class Organization(BaseResource):
+    name = 'organization'
+    model = OrganizationModel
+
     parser = reqparse.RequestParser()
     parser.add_argument('admin_email', type=non_empty_string, required=True, help='This field cannot be left blank!')
     parser.add_argument('password', type=non_empty_string, required=True, help='This field cannot be left blank!')
@@ -71,16 +75,8 @@ class Organization(Resource):
 
         return {"admin": user.json(), "organization": org.json()}, 201
 
-    def get(self, id=None):
-        """ Retrieve all organizations from DB. """
-        if not id:
-            return {'organizations': [org.json() for org in OrganizationModel.query.all()]}
-
-        org = OrganizationModel.find_by_id(id)
-        if org:
-            return org.json()
-        else:
-            abort(404, message='Organization not found.')
+    def delete(self, id):
+        abort(405)
 
 
 #TODO do we need put and delete for this ?

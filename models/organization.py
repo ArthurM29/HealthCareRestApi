@@ -1,7 +1,8 @@
 from db import db
+from models.base_model import BaseModel
 
 
-class OrganizationModel(db.Model):
+class OrganizationModel(BaseModel):
     __tablename__ = 'organization'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -16,21 +17,3 @@ class OrganizationModel(db.Model):
 
     admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     admin = db.relationship('UserModel', backref='OrganizationModel', lazy=True)
-
-    def json(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-    def update(self, data):
-        OrganizationModel.query.filter_by(id=self.id).update(data)
-
-    def save_to_db(self):  # handles both insert and update
-        db.session.add(self)
-        db.session.commit()
-
-    def delete_from_db(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    @classmethod
-    def find_by_id(cls, _id):
-        return cls.query.get(_id)

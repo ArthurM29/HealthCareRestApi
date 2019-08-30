@@ -1,7 +1,8 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import reqparse, abort
 from validate_email import validate_email
 
 from models.user import UserModel
+from resources.base_resource import BaseResource
 
 
 # TODO should I move this to a base class ?
@@ -11,7 +12,10 @@ def non_empty_string(s):
     return s
 
 
-class User(Resource):
+class User(BaseResource):
+    name = 'user'
+    model = UserModel
+
     parser = reqparse.RequestParser()
     parser.add_argument('email', type=non_empty_string, required=True, help='This field cannot be left blank!')
     parser.add_argument('password', type=non_empty_string, required=True, help='This field cannot be left blank!')
@@ -58,17 +62,6 @@ class User(Resource):
 
         return user.json(), 201
 
-    def get(self, id=None):
-        """ Retrieve all users from DB. """
-        if not id:
-            return {'users': [user.json() for user in UserModel.query.all()]}
-
-        user = UserModel.find_by_id(id)
-        if user:
-            return user.json()
-        else:
-            abort(404, message='User not found.')
-
     def put(self, id):
         """ Update user by id. """
 
@@ -85,11 +78,4 @@ class User(Resource):
 
         abort(404, message='User not found.')
 
-    def delete(self, id):
-        """ Delete user by id. """
-        user = UserModel.find_by_id(id)
-        if user:
-            user.delete_from_db()
-            return {'message': 'User deleted'}
 
-        abort(404, message='User not found.')

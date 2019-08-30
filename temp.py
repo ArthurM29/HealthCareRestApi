@@ -1,17 +1,24 @@
 class Dog:
-    def bark(self):
-        print('haf-haf')
+    @classmethod
+    def say_my_name(cls):
+        print("I am a {}".format(cls.__name__))
 
 
-class Cat:
-    def mew(self):
-        print('myau-myau')
-
-
-class Anasun(Dog, Cat):
+class Puppy(Dog):
     pass
+#
+#
+# class Anasun(Dog, Cat):
+#     pass
+#
+#
+# ez = Anasun()
+# ez.bark()
+# ez.mew()r
 
 
-ez = Anasun()
-ez.bark()
-ez.mew()
+dog = Dog()
+dog.say_my_name()
+
+puppy = Puppy()
+Puppy.say_my_name()
