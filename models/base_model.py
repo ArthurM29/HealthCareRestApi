@@ -24,6 +24,6 @@ class BaseModel(db.Model):
 
     # TODO does this belong in here ?
     @classmethod
-    def find_by_id(cls, _id):
+    def find_by_id(cls, id):
         """Find item by primary key - id"""
-        return cls.query.get(_id)
+        return cls.query.get(id)

@@ -1,15 +1,25 @@
-from flask_restful import reqparse, abort
-from validate_email import validate_email
+from flask_restful import reqparse, abort, fields, marshal_with
 
 from models.user import UserModel
 from resources.base_resource import BaseResource
+from common.types import email, non_empty_string
 
 
-# TODO should I move this to a base class ?
-def non_empty_string(s):
-    if not s:
-        raise ValueError("Must not be empty string.")
-    return s
+# exclude password from response
+user_response_fields = {
+    "id": fields.Integer,
+    "email": fields.String,
+    "first_name": fields.String,
+    "last_name": fields.String,
+    "address_1": fields.String,
+    "address_2": fields.String,
+    "city": fields.String,
+    "state": fields.String,
+    "zip_code": fields.String,
+    "country": fields.String,
+    "phone": fields.String,
+    "user_level": fields.String
+}
 
 
 class User(BaseResource):
@@ -17,10 +27,9 @@ class User(BaseResource):
     model = UserModel
 
     parser = reqparse.RequestParser()
-    parser.add_argument('email', type=non_empty_string, required=True, help='This field cannot be left blank!')
-    parser.add_argument('password', type=non_empty_string, required=True, help='This field cannot be left blank!')
-    parser.add_argument('confirm_password', type=non_empty_string, required=True,
-                             help='This field cannot be left blank!')
+    parser.add_argument('email', location='json', type=email, required=True)
+    parser.add_argument('password', location='json', type=non_empty_string, required=True)
+    parser.add_argument('confirm_password', location='json', type=non_empty_string, required=True)
     parser.add_argument('first_name', type=str)
     parser.add_argument('last_name', type=str)
     parser.add_argument('address_1', type=str)
@@ -33,15 +42,8 @@ class User(BaseResource):
     parser.add_argument('user_level', type=str)
 
     @classmethod
-    def validate_email(cls, data):
-        if not validate_email(data['email']):
-            abort(400, message='Invalid email.')
-        data['email'] = data['email'].lower()
-
-    @classmethod
     def validate_arguments(cls):
         data = User.parser.parse_args(strict=True)  # return 400 if unexpected arguments received
-        User.validate_email(data)
 
         if UserModel.find_by_email(data['email']):
             abort(400, message="User with email '{}' already exists.".format(data['email']))
@@ -53,8 +55,12 @@ class User(BaseResource):
         new_data = {k: v for k, v in data.items() if k != 'confirm_password'}
         return new_data
 
+    @marshal_with(user_response_fields)
+    def get(self, id=None):
+        return super().get(id=id)
+
     def post(self):
-        #TODO should post return Location header with full URI of the created resource ?
+        # TODO should post return Location header with full URI of the created resource ?
         """ Create a new user. """
         data = User.validate_arguments()
         user = UserModel(**data)
@@ -77,5 +83,3 @@ class User(BaseResource):
             return user.json()
 
         abort(404, message='User not found.')
-
-

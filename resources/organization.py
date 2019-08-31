@@ -1,15 +1,10 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import reqparse, abort
 from validate_email import validate_email
 
 from models.user import UserModel
 from models.organization import OrganizationModel
 from resources.base_resource import BaseResource
-
-
-def non_empty_string(s):
-    if not s:
-        raise ValueError("Must not be empty string.")
-    return s
+from common.types import non_empty_string
 
 
 class Organization(BaseResource):
