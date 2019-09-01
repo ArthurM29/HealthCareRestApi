@@ -3,10 +3,11 @@ from db import db
 
 class BaseModel(db.Model):
     __abstract__ = True   # skip the production of a table or mapper for the class
+    schema = None
 
     def json(self):
-        """Return model as a dict"""
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        """Return model as a dict, applying schema"""
+        return self.schema().dump(self)
 
     def update(self, data):
         """Find the model by self.id and update by data"""

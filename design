@@ -80,4 +80,6 @@ POST /register
 
 
 
-*** Device service ***
+Questions:
+
+* should I allow to delete users ? should allow delete user or update email.
