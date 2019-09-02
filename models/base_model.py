@@ -7,7 +7,8 @@ class BaseModel(db.Model):
 
     def json(self):
         """Return model as a dict, applying schema"""
-        return self.schema().dump(self)
+        # return self.schema().dump(self)
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
     def update(self, data):
         """Find the model by self.id and update by data"""
