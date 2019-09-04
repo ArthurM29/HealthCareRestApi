@@ -1,4 +1,4 @@
-from models.user import UserModel, UserSchema
+from models.user import UserModel
 from resources.base_resource import BaseResource
 
 

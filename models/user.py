@@ -1,14 +1,14 @@
-from db import db, ma
+from db import db
 from models.base_model import BaseModel
 from datetime import datetime
-from marshmallow import Schema, fields, post_load, validate, ValidationError
+from marshmallow import Schema, fields, post_load, validate, ValidationError, pre_load
 
 
 class UserSchema(Schema):
-    id = fields.Integer(dump_only=True)
+    id = fields.Integer()
     email = fields.Email(validate=validate.Length(max=250), required=True)
-    password = fields.String(validate=validate.Length(max=128), required=True, load_only=True)
-    confirm_password = fields.String(validate=validate.Length(max=128), required=True, load_only=True)
+    password = fields.String(validate=validate.Length(max=128), required=True)
+    confirm_password = fields.String(validate=validate.Length(max=128), required=True)
     first_name = fields.String(validate=validate.Length(max=128))
     last_name = fields.String(validate=validate.Length(max=128))
     address_1 = fields.String(validate=validate.Length(max=128))
@@ -18,12 +18,19 @@ class UserSchema(Schema):
     zip_code = fields.String(validate=validate.Length(max=80))
     country = fields.String(validate=validate.Length(max=80))
     phone = fields.String(validate=validate.Length(max=80))
-    user_level = fields.String(validate=validate.Length(max=80))   #TODO - do I need this ?
-
-    # created_at_utc = fields.DateTime()
+    user_level = fields.Str(validate=validate.OneOf(["admin", "user"]), required=True)  #TODO should I set a default value here ?
+    created_at_utc = fields.DateTime()
 
     class Meta:
         ordered = True
+        load_only = ['password', 'confirm_password']
+        dump_only = ['id', 'created_at_utc']
+        datetimeformat = "%Y-%m-%d %H:%M:%S"
+
+    @pre_load
+    def lowerstrip_user_level(self, item, many, **kwargs):
+        item['user_level'] = item['user_level'].lower().strip()
+        return item
 
     @post_load
     def create_user(self, data, **kwargs):
@@ -53,9 +60,8 @@ class UserModel(BaseModel):
     zip_code = db.Column(db.String(20))
     country = db.Column(db.String(80))
     phone = db.Column(db.String(80))
-    user_level = db.Column(db.String(20))  # TODO define values and add choice validation in parser
-
-    # created_at_utc = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    user_level = db.Column(db.String(20))
+    created_at_utc = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
 
     # TODO is it ok to have classmethods or better to create some service layer classes ?
     @classmethod
