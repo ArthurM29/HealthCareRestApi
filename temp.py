@@ -39,7 +39,7 @@ class UserSchema(Schema):
 
 
 user_data = {
-    "email": "ar2@mac.com",
+    "email": "ar2mac.com",
     "password": "Pass",
     "confirm_password": "Pass",
     "first_name": "Arthur",
