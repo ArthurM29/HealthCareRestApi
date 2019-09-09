@@ -3,6 +3,7 @@ from marshmallow import ValidationError
 
 
 class BaseResource(Resource):
+    name = ''
     model = None
 
     def get(self, id=None):
@@ -14,45 +15,68 @@ class BaseResource(Resource):
         item = self.model.find_by_id(id)
 
         if item:
-            schema = item.schema()
-            a = schema.dump(item)
-            return a
+            return item
 
-        abort(404, message='Item not found.')
+        abort(404, message='{} not found.'.format(self.name.title()))
 
     def post(self):
         """Create a new item."""
-        data = request.get_json(force=True)
+        raw_data = request.get_json(force=True)
+
         try:
-            item = self.model.schema().load(data)
+            data = self.model.schema().load(raw_data)
+            item = self.model(**data)
+            item.validate(raw_data)
         except ValidationError as err:
             abort(400, message=err.messages)
 
         item.save_to_db()
-        return item.json(), 201, {'Location': request.url + '/' + str(item.id)}
+        return item, 201, {'Location': request.url + '/' + str(item.id)}
 
     def put(self, id):
         """Update item by id."""
-        data = self.parser.parse_args(strict=True)  # return 400 if unexpected arguments received
-
-        # if UserModel.find_by_email(data['email']) and data['email'] != item.email:
-        #     abort(400, message="User with email '{}' already exists.".format(data['email']))
-
         item = self.model.find_by_id(id)
 
         if item:
-            data = self.validate_arguments()
+            raw_data = request.get_json(force=True)
+            data = self.model.schema().load(raw_data)
+
+            try:
+                self.model.validate(data, id)
+            except ValidationError as err:
+                abort(400, message=err.messages)
+
             item.update(data)
             item.save_to_db()
-            return item.json()
+            return item
 
-        abort(404, message='Item not found.')
+        abort(404, message='{} not found.'.format(self.name.title()))
 
     def delete(self, id):
         """Delete item by id."""
         item = self.model.find_by_id(id)
         if item:
             item.delete_from_db()
-            return {'message': 'Item deleted'}
+            return {'message': '{} deleted'.format(self.name.title())}
 
-        abort(404, message='Item not found.')
+        abort(404, message='{} not found.'.format(self.name.title()))
+
+    def validate(self, raw_data, method, id=None):
+        return True
+        # method = put
+        if id:
+            item = cls.find_by_id(id)
+            if item:
+                existing_user = True
+            else:
+                existing_user = False
+
+            email_is_not_unique = cls.find_by_email(raw_data['email'])
+
+            if existing_user:
+                if email_is_not_unique and item.email != raw_data['email']:
+                    raise ValidationError("Another user is registered with email '{}'.".format(raw_data['email']))
+
+        # method = post
+        if cls.find_by_email(raw_data['email']):
+            raise ValidationError("User with email '{}' already exists.".format(raw_data['email']))

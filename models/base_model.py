@@ -23,6 +23,10 @@ class BaseModel(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    @classmethod
+    def validate(cls, **kwargs):
+        pass
+
     # TODO does this belong in here ?
     @classmethod
     def find_by_id(cls, id):

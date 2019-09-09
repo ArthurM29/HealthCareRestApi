@@ -18,7 +18,8 @@ class UserSchema(Schema):
     zip_code = fields.String(validate=validate.Length(max=80))
     country = fields.String(validate=validate.Length(max=80))
     phone = fields.String(validate=validate.Length(max=80))
-    user_level = fields.Str(validate=validate.OneOf(["admin", "user"]), required=True)  #TODO should I set a default value here ?
+    user_level = fields.Str(validate=validate.OneOf(["admin", "user"]),
+                            required=True)  # TODO should I set a default value here ?
     created_at_utc = fields.DateTime()
 
     class Meta:
@@ -27,21 +28,16 @@ class UserSchema(Schema):
         dump_only = ['id', 'created_at_utc']
         datetimeformat = "%Y-%m-%d %H:%M:%S"
 
-    @pre_load
-    def lowerstrip_user_level(self, item, many, **kwargs):
-        item['user_level'] = item['user_level'].lower().strip()
-        return item
-
     @post_load
     def create_user(self, data, **kwargs):
         """Get dictionary of deserialized validated data and return UserModel object"""
-        data['email'] = data.get('email').lower()
-        if UserModel.find_by_email(data['email']):
-            raise ValidationError("User with email '{}' already exists.".format(data['email']))
+        data['user_level'] = data['user_level'].lower().strip()
+        data['email'] = data['email'].lower().strip()
         if data['confirm_password'] != data['password']:
-            raise ValidationError("Passwords do not match")
-        new_data = {k: v for k, v in data.items() if k != 'confirm_password'}
-        return UserModel(**new_data)
+            raise ValidationError("Passwords do not match", field_name='password')
+
+        data = {k: v for k, v in data.items() if k != 'confirm_password'}
+        return data
 
 
 class UserModel(BaseModel):
@@ -68,3 +64,23 @@ class UserModel(BaseModel):
     def find_by_email(cls, email):
         """Find the model by email"""
         return cls.query.filter_by(email=email).first()
+
+    # @classmethod
+    # def validate(cls, raw_data, id=None):
+    #     # method = put
+    #     if id:
+    #         item = cls.find_by_id(id)
+    #         if item:
+    #             existing_user = True
+    #         else:
+    #             existing_user = False
+    #
+    #         email_is_not_unique = cls.find_by_email(raw_data['email'])
+    #
+    #         if existing_user:
+    #             if email_is_not_unique and item.email != raw_data['email']:
+    #                 raise ValidationError("Another user is registered with email '{}'.".format(raw_data['email']))
+    #
+    #     # method = post
+    #     if cls.find_by_email(raw_data['email']):
+    #         raise ValidationError("User with email '{}' already exists.".format(raw_data['email']))
