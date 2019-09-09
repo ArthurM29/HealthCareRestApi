@@ -5,17 +5,18 @@ from marshmallow import ValidationError
 class BaseResource(Resource):
     name = ''
     model = None
+    schema = None
 
     def get(self, id=None):
         """Retrieve all items from DB."""
         if not id:
             items = self.model.query.all()
-            return [item.json() for item in items]
+            return [self.json(item) for item in items]
 
         item = self.model.find_by_id(id)
 
         if item:
-            return item
+            return self.json(item)
 
         abort(404, message='{} not found.'.format(self.name.title()))
 
@@ -24,14 +25,13 @@ class BaseResource(Resource):
         raw_data = request.get_json(force=True)
 
         try:
-            data = self.model.schema().load(raw_data)
-            item = self.model(**data)
+            item = self.schema().load(raw_data)
             item.validate(raw_data)
         except ValidationError as err:
             abort(400, message=err.messages)
 
         item.save_to_db()
-        return item, 201, {'Location': request.url + '/' + str(item.id)}
+        return self.json(item), 201, {'Location': request.url + '/' + str(item.id)}
 
     def put(self, id):
         """Update item by id."""
@@ -39,16 +39,16 @@ class BaseResource(Resource):
 
         if item:
             raw_data = request.get_json(force=True)
-            data = self.model.schema().load(raw_data)
 
             try:
-                self.model.validate(data, id)
+                new_item = self.schema().load(raw_data)
+                new_item.validate(raw_data, id)
             except ValidationError as err:
                 abort(400, message=err.messages)
 
-            item.update(data)
+            item.update(new_item)
             item.save_to_db()
-            return item
+            return self.json(item)
 
         abort(404, message='{} not found.'.format(self.name.title()))
 
@@ -61,22 +61,5 @@ class BaseResource(Resource):
 
         abort(404, message='{} not found.'.format(self.name.title()))
 
-    def validate(self, raw_data, method, id=None):
-        return True
-        # method = put
-        if id:
-            item = cls.find_by_id(id)
-            if item:
-                existing_user = True
-            else:
-                existing_user = False
-
-            email_is_not_unique = cls.find_by_email(raw_data['email'])
-
-            if existing_user:
-                if email_is_not_unique and item.email != raw_data['email']:
-                    raise ValidationError("Another user is registered with email '{}'.".format(raw_data['email']))
-
-        # method = post
-        if cls.find_by_email(raw_data['email']):
-            raise ValidationError("User with email '{}' already exists.".format(raw_data['email']))
+    def json(self, item):
+        return self.schema().dump(item)

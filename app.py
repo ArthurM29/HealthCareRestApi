@@ -6,13 +6,13 @@ from flask_restful import Api
 from resources.user import User
 from resources.organization import Organization
 from models.base_model import BaseModel
+from models.user import UserSchema
 
 app = Flask(__name__)
 api = Api(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.sqlite'
-app.config[
-    'SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # turn off Flask-SQLAlchemy modification tracker and leave SQLAlchemy tracker
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # turn off Flask-SQLAlchemy modification tracker and leave SQLAlchemy tracker
 app.config['BUNDLE_ERRORS'] = True  # show all errors handled by the RequestParser together
 
 api.add_resource(User, '/users', endpoint='users')
@@ -21,23 +21,11 @@ api.add_resource(Organization, '/organizations', endpoint='organizations')
 api.add_resource(Organization, '/organizations/<string:id>', endpoint='organization')
 
 
-@api.representation('application/json')
-def output_json(data, code, headers=None):
-    if isinstance(data, BaseModel):
-        resp_data = data.json()
-    else:
-        resp_data = data
-
-    resp = make_response(json.dumps(resp_data), code)
-    resp.headers.extend(headers or {})
-
-    return resp
-
-
 if __name__ == '__main__':
-    from db import db
+    from db import db, ma
 
     db.init_app(app)
+    ma.init_app(app)
 
 
     @app.before_first_request
