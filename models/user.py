@@ -1,5 +1,4 @@
 from marshmallow import post_load, ValidationError, validate, fields
-from sqlalchemy.orm import validates
 
 from db import db, ma
 from models.base_model import BaseModel
@@ -12,7 +11,7 @@ class UserModel(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    first_name = db.Column(db.String(128), nullable=True)
+    first_name = db.Column(db.String(128))
     last_name = db.Column(db.String(128))
     address_1 = db.Column(db.String(250))
     address_2 = db.Column(db.String(250))
@@ -46,11 +45,12 @@ class UserModel(BaseModel):
 
             if existing_user:
                 if email_exists_in_db and new_email_is_different:
-                    raise ValidationError("Another user is registered with email '{}'.".format(email))
+                    raise ValidationError("Another user is registered with email '{}'.".format(email), field_name='email')
 
         # method = post
         elif cls.find_by_email(email):
-            raise ValidationError("User with email '{}' already exists.".format(email), 'email')
+            # TODO this doesn't work, probably because of using flask-marshmallow
+            raise ValidationError("User with email '{}' already exists.".format(email), field_name='email')
 
         return email
 

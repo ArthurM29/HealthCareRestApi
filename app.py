@@ -1,12 +1,9 @@
-import json
-
-from flask import Flask, make_response
+from flask import Flask
 from flask_restful import Api
 
 from resources.user import User
 from resources.organization import Organization
-from models.base_model import BaseModel
-from models.user import UserSchema
+
 
 app = Flask(__name__)
 api = Api(app)

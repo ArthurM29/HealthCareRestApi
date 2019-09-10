@@ -1,39 +1,115 @@
-import requests, uuid, json
+from test.models.UserModel import UserModel
+from test.api.users_api import CreateUsersAPI
+from termcolor import colored
+
 from assertpy import assert_that
-
-url = 'http://127.0.0.1:5000/users'
-
-template_data = {
-    "email": "myemail@gmail.com",
-    "password": "Pass",
-    "confirm_password": "Pass",
-    "first_name": "Arthur",
-    "last_name": "Manasyan",
-    "address_1": "Komitas 8, 50",
-    "address_2": "Barekamutyun",
-    "city": "Yerevan",
-    "state": "N/A",
-    "zip_code": "0033",
-    "country": "Armenia",
-    "phone": "271219",
-    "user_level": "admin"
-}
-
-
-def random_string(length):
-    """Return parts of UUID"""
-    return str(uuid.uuid4())[:length].replace('-', '')
 
 
 def test_email_is_required():
-    data = dict(template_data)
-    del data['email']
-    print(data)
-    post_response = requests.post(url, json=data)
-    print(post_response.content)
-    assert post_response.status_code == 400
-    assert post_response.json()['message']['email'][0] == 'Missing data for required field.'
-    print(json.dumps(post_response.json(), indent=2))
+    create_user = UserModel()
+    delattr(create_user, 'email')
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 400
+    assert create_user_response.json()['message']['email'][0] == 'Missing data for required field.'
+
+
+def test_email_format_is_validated():
+    format_validation_cases = {
+        "empty_email": "",
+        "email_without_local_part": "@mac.com",
+        "email_without_@": "myemailmac.com",
+        "email_without_middle_part": "myemail@.com",
+        "email_without_dot": "myemail@maccom",
+        "email_without_domain": "myemail@mac."
+    }
+
+    for case, email in format_validation_cases.items():
+        print(colored("\n\nRunning test case: {}".format(case), color='yellow'))
+        create_user = UserModel()
+        create_user.email = email
+        create_users_api = CreateUsersAPI(payload=create_user.json())
+        create_user_response = create_users_api.call()
+        assert create_user_response.status_code == 400
+        assert create_user_response.json()['message']['email'][0] == 'Not a valid email address.'
+        print("\nTest case: {} {}".format(case, colored('PASSED', 'green')))
+
+
+def test_email_is_unique():
+    create_user = UserModel()
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 201
+
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 400
+    assert create_user_response.json()['message'][0] == "User with email '{}' already exists.".format(create_user.email)
+
+
+def test_password_is_required():
+    create_user = UserModel()
+    delattr(create_user, 'password')
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 400
+    assert create_user_response.json()['message']['password'][0] == 'Missing data for required field.'
+
+
+def test_confirm_password_is_required():
+    create_user = UserModel()
+    delattr(create_user, 'confirm_password')
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 400
+    assert create_user_response.json()['message']['confirm_password'][0] == 'Missing data for required field.'
+
+
+def test_user_level_is_required():
+    create_user = UserModel()
+    delattr(create_user, 'user_level')
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 400
+    assert create_user_response.json()['message']['user_level'][0] == 'Missing data for required field.'
+
+
+def test_user_level_accepts_admin_value():
+    """Verify user_field accepts value 'admin' """
+    create_user = UserModel()
+    create_user.user_level = 'admin'
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 201
+    assert create_user_response.json()['user_level'] == 'admin'
+
+
+def test_user_level_accepts_user_value():
+    """Verify user_field accepts value 'user']"""
+    create_user = UserModel()
+    create_user.user_level = 'user'
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 201
+    assert create_user_response.json()['user_level'] == 'user'
+
+
+def test_user_level_rejects_random_values():
+    """Verify user_field rejects values different from ['admin', 'user']"""
+    create_user = UserModel()
+    create_user.user_level = 'someone'
+    create_users_api = CreateUsersAPI(payload=create_user.json())
+    create_user_response = create_users_api.call()
+    assert create_user_response.status_code == 400
+    assert create_user_response.json()['message']['user_level'][0] == 'Must be one of: admin, user.'
+
+# def test_optional_fields():
+#     """Verify able to create a user without providing optional fields"""
+#     create_user = UserModel()
+#     create_user.remove_attributes(
+#         ['first_name', 'last_name', 'address_1', 'address_2', 'city', 'state', 'zip_code', 'country', 'phone'])
+#     create_users_api = CreateUsersAPI(payload=create_user.json())
+#     create_user_response = create_users_api.call()
+#     assert create_user_response.status_code == 201
 
 
 # def test_email_is_required():

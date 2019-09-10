@@ -46,7 +46,8 @@ class BaseResource(Resource):
             except ValidationError as err:
                 abort(400, message=err.messages)
 
-            item.update(new_item)
+            new_data = BaseResource.model_to_dict(new_item)
+            item.update(new_data)
             item.save_to_db()
             return self.json(item)
 
@@ -63,3 +64,13 @@ class BaseResource(Resource):
 
     def json(self, item):
         return self.schema().dump(item)
+
+    @staticmethod
+    def model_to_dict(item):
+        # marshmallow-sqlalchemy deserializes to a model object, and there's no way to tell it to return a dictionary
+        # this is a known issue: https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/193
+
+        # workaround: convert Model object to a dictionary
+        data = dict(item.__dict__)
+        del data['_sa_instance_state']
+        return data
