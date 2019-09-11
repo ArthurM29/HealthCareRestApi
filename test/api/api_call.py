@@ -8,23 +8,49 @@ class ApiCall:
     base_url = URL.BASE_URL
     path = ''
 
-    def __init__(self, method, headers=None, payload=None, query_params=None, **kwargs):
+    def __init__(self, method, headers=None, payload=None, query_params=None, debug=False, **kwargs):
         self.url = urllib.parse.urljoin(self.base_url, self.path)
         self.method = method
         self.headers = headers
         self.payload = payload
         self.query_params = query_params
+        self.debug = debug
         self.kwargs = kwargs
 
     def call(self):
         if self.method:
-            self.log_request()
+            if self.debug:
+                self.log_request()
             response = requests.request(self.method, self.url, data=self.payload, headers=self.headers,
                                         params=self.query_params)
-            self.log_response(response)
+            if self.debug:
+                self.log_response(response)
             return response
         else:
             raise Exception('Invalid verb')
+
+    def append_id(self, id):
+        self.url = self.url + '/' + str(id)
+
+    def post(self):
+        self.method = 'post'
+        return self.call()
+
+    def put(self, id):
+        self.append_id(id)
+        self.method = 'put'
+        return self.call()
+
+    def get(self, id=None):
+        if id:
+            self.append_id(id)
+        self.method = 'get'
+        return self.call()
+
+    def delete(self, id):
+        self.append_id(id)
+        self.method = 'delete'
+        return self.call()
 
     def log_request(self):
         log = f"\n---->Request: {self.method.upper()} {self.url}"
@@ -47,4 +73,6 @@ class ApiCall:
             log += f"\nMessage: {response.text}"
         print(log)
 
-
+    @staticmethod
+    def join_url(self, *args):
+        return "/".join(args)
