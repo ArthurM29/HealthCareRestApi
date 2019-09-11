@@ -1,10 +1,10 @@
 from test.models.BaseModel import BaseModel
-from common.utils.utils import random_string
+from common.utils import random_string
 
 
 class UserModel(BaseModel):
     def __init__(self,
-                 email="myemail+" + random_string(6) + "@gmail.com",
+                 email=None,
                  password="Password1!",
                  confirm_password="Password1!",
                  first_name="James",
@@ -18,7 +18,10 @@ class UserModel(BaseModel):
                  phone="876-55-44-33",
                  user_level="admin"
                  ):
-        self.email = email
+        if email:
+            self.email = email
+        else:
+            self.email = "myemail+" + random_string(6) + "@gmail.com"
         self.password = password
         self.confirm_password = confirm_password
         self.first_name = first_name

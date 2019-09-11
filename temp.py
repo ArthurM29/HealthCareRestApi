@@ -61,23 +61,30 @@
 # # pprint(schema.dump(user.json()))
 
 
-data = {
-    "email": "myemail@gmail.com",
-    "password": "Pass",
-    "confirm_password": "Pass",
-    "first_name": "Arthur",
-    "last_name": "Manasyan",
-    "address_1": "Komitas 8, 50",
-    "address_2": "Barekamutyun",
-    "city": "Yerevan",
-    "state": "N/A",
-    "zip_code": "0033",
-    "country": "Armenia",
-    "phone": "271219",
-    "user_level": "admin"
-}
+# data = {
+#     "email": "myemail@gmail.com",
+#     "password": "Pass",
+#     "confirm_password": "Pass",
+#     "first_name": "Arthur",
+#     "last_name": "Manasyan",
+#     "address_1": "Komitas 8, 50",
+#     "address_2": "Barekamutyun",
+#     "city": "Yerevan",
+#     "state": "N/A",
+#     "zip_code": "0033",
+#     "country": "Armenia",
+#     "phone": "271219",
+#     "user_level": "admin"
+# }
+#
+# data2 = dict(data)
+# data2['email'] = '222'
+# print(data)
+# print(data2)
+from common.utils import random_string
 
-data2 = dict(data)
-data2['email'] = '222'
-print(data)
-print(data2)
+from faker import Faker
+
+fake = Faker()
+for i in range(10):
+    print(random_string(6))

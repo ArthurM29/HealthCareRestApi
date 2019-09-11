@@ -43,7 +43,7 @@ class ApiCall:
         log = f"\n<----Response: \nStatus code: {response.status_code}"
         if response:
             log += f"\nBody: {json.dumps(response.json(), indent=2)}"
-        if response.text:
+        if not response.ok:
             log += f"\nMessage: {response.text}"
         print(log)
 
