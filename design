@@ -1,85 +1,114 @@
-*** Clinic service ***
-
-admin user portal/users
-admin registers clinic portal/clinics
-admin can add users portal/users
-admin can register instrument portal/clinics/instruments
-admin can review tests: instruments/tests
-
-user can send tests /instruments/tests device/tests
-
-** Register organization
-
-POST /register
-
-"admin_email"
-"admin_first_name"
-"admin_last_name"
-
-"password"
-"confirm_password"
-"organization_name"
-"organization_address_1"
-"organization_address_2"
-"organization_city"
-"organization_postal_code": "12345",
-"organization_phone": "",
-"user_e_mail": "{{ts_admin_userEmail}}",
-"user_name": "{{ts_admin_username}}",
-"user_first_name": "John",
-"user_last_name": "Doe",
-"password": "{{ts_admin_password}}",
-"confirm_password": "{{ts_admin_password}}",
-"organization_country_id": "US",
-"organization_state_id": "AL"
+Health Care API
 
 
-* User resource, route: /user, actions: create read update delete
+** requirements **
 
-{
-  "email"
-  "password"
-  "confirm_password"
-  "user_name"
-  "first_name"
-  "last_name"
-  "address_1"
-  "address_2"
-  "city"
-  "state"
-  "zip_code"
-  "country"
-  "phone"
-}
+The HIMS system comprises of 2 parts: portal application and a medical device.
 
-* Organization resource, route: /organization, actions: create read
+Portal application manages health care provider, clinics, doctors, patients and medical devices, it allows doctors to prescribe tests to patients and view result reports. \
 
-{
-    "organization_name": "{{ts_org_name}}",
-    "organization_address_1": "Brockton Avenue",
-    "organization_address_2": "777",
-    "organization_city": "Montgomery",
-    "organization_postal_code": "12345",
-    "organization_phone": "",
-    "user_e_mail": "{{ts_admin_userEmail}}",
-    "user_name": "{{ts_admin_username}}",
-    "user_first_name": "John",
-    "user_last_name": "Doe",
-    "password": "{{ts_admin_password}}",
-    "confirm_password": "{{ts_admin_password}}",
-    "organization_country_id": "US",
-    "organization_state_id": "AL"
-}
-
-* Location resource, route: /clinic, actions: create read update delete
+Medical device runs assigned tests and submits results.
 
 
 
-* Device resource, route: /device, actions: create read update delete pair
+Superadmin exists in the DB
+		creates org
+		creates user, passes org_id, stores in org_id
+
+		post clinics/1/doctors
+		doctors/1
+
+		doctors/1/patients
+
+		patient/id
+
+
+A common flow:
+
+Superadmin
+
+Only superadmin can:
+- create organization
+-
+
+
+Admin signs up and logs into the system
+Admin registers organization, clinics/locations, doctors, patients and medical devices
+
+Doctor signs up and logs into the system
+Doctor prescribes tests to a patient and assigns to a specific device
+Device fetches tests assigned to itself, runs and submits results
+Doctor fetches test results and generates PDF reports
 
 
 
 
-Questions:
+users/
+create
 
-* should I allow to delete users ? should allow delete user or update email.
+
+admin
+
+* Doctor portal side
+
+/portal/organizations
+	register
+	update
+	read
+
+/portal/organizations/organization_id/clinics
+
+/portal/clinics
+	create
+	get
+	update
+	delete
+
+/portal/clinics/clinic_id
+
+/portal/clinics/clinic_id/doctors
+	crud
+
+/portal/clinics/clinic_id/patients
+	crud
+
+/portal/clinics/clinic_id/medical devices
+	crud
+
+/portal/clinics/clinic_id/patients/patient_id/tests
+/portal/patients/patient_id/tests
+	prescribe
+	read
+	update
+	cancel
+
+/portal/tests/test_id/reports
+	generate
+	delete
+
+
+
+
+* Instrument side
+
+instruments/instrument_id/pairing_code
+	pair
+	unpair
+
+instruments/instrument_id/tests
+	get prescribed tests
+	submit test results
+
+
+
+
+
+
+
+
+
+
+
+
+
+

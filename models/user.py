@@ -1,7 +1,7 @@
 from marshmallow import post_load, ValidationError, validate, fields
 
 from db import db, ma
-from models.base_model import BaseModel
+from models.base import BaseModel
 from datetime import datetime
 
 
