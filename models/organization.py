@@ -9,7 +9,7 @@ class OrganizationModel(BaseModel):
     __tablename__ = 'organization'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(250), nullable=False)
     address_1 = db.Column(db.String(250))
     address_2 = db.Column(db.String(250))
     city = db.Column(db.String(80))
@@ -28,7 +28,7 @@ class OrganizationModel(BaseModel):
         return cls.query.filter_by(name=name).first()
 
     @classmethod
-    def validate(cls, data, id=None):
+    def unique_field(cls, data, id=None):
         org_name = data['name']
 
         # method = put

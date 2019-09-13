@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+
 from flask_restful import Resource, abort, request
 from marshmallow import ValidationError
 
@@ -7,30 +9,42 @@ class BaseResource(Resource):
     model = None
     schema = None
 
-    def get(self, id=None):
+    def get(self, parent_id=None, id=None):
         """Retrieve all items from DB."""
+        if parent_id:
+            self.model.verify_id(parent_id)
+
         if not id:
-            items = self.model.query.all()
+            items = self.model.get_from_db(parent_id, id)
             return [self.json(item) for item in items]
 
-        item = self.model.find_by_id(id)
+        # item = self.model.get_from_db(parent_id, id)
+        item = self.model.get_from_db(parent_id, id)
 
         if item:
             return self.json(item)
 
         abort(404, message='{} not found.'.format(self.name.title()))
 
-    def post(self):
+    def post(self, parent_id=None):
         """Create a new item."""
+        if parent_id:
+            self.model.verify_id(parent_id)
+
         raw_data = request.get_json(force=True)
 
         try:
             item = self.schema().load(raw_data)
-            item.validate(raw_data)
+            # item.validate(raw_data)
         except ValidationError as err:
             abort(400, message=err.messages)
 
-        item.save_to_db()
+        item.store_path_param(parent_id)
+        try:
+            item.save_to_db()
+        except IntegrityError as err:
+            abort(400, message=str(err.orig))
+
         return self.json(item), 201, {'Location': request.url + '/' + str(item.id)}
 
     def put(self, id):
@@ -47,8 +61,11 @@ class BaseResource(Resource):
                 abort(400, message=err.messages)
 
             new_data = BaseResource.model_to_dict(new_item)
-            item.update(new_data)
-            item.save_to_db()
+            try:
+                item.update(new_data)
+                item.save_to_db()
+            except IntegrityError as err:
+                abort(400, message=str(err.orig))
             return self.json(item)
 
         abort(404, message='{} not found.'.format(self.name.title()))

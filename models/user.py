@@ -29,7 +29,7 @@ class UserModel(BaseModel):
         return cls.query.filter_by(email=email).first()
 
     @classmethod
-    def validate(cls, data, id=None):
+    def unique_field(cls, data, id=None):
         email = data['email']
 
         # method = put
