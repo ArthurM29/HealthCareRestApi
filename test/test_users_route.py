@@ -44,7 +44,7 @@ def test_email_is_unique(create_user):
 
     create_user_response = create_users_api.call()
     assert create_user_response.status_code == 400
-    assert create_user_response.json()['message'][0] == "User with email '{}' already exists.".format(create_user.email)
+    assert create_user_response.json()['message'] == "User with email '{}' already exists.".format(create_user.email)
 
 
 def test_password_is_required(create_user):

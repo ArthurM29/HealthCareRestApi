@@ -42,9 +42,8 @@ class BaseResource(Resource):
         item.set_parent_id(parent_id)
         try:
             item.save_to_db()
-        # handle UNIQUE constraint failures
         except IntegrityError as err:
-            abort(500, message=str(err.orig))
+            self.handle_db_integrity_errors(err)
 
         return self.json(item), 201, {'Location': request.url + '/' + str(item.id)}
 
@@ -69,7 +68,7 @@ class BaseResource(Resource):
                 item.update(new_data)
                 item.save_to_db()
             except IntegrityError as err:
-                abort(500, message=str(err.orig))
+                self.handle_db_integrity_errors(err)
             return self.json(item)
 
         abort(404, message='{} not found.'.format(self.name.title()))
@@ -85,7 +84,7 @@ class BaseResource(Resource):
             try:
                 item.delete_from_db()
             except IntegrityError as err:
-                abort(500, message=str(err.orig))
+                self.handle_db_integrity_errors(err)
 
             return {'message': '{} deleted'.format(self.name.title())}
 
@@ -109,3 +108,14 @@ class BaseResource(Resource):
             self.model.parent_id_exists(parent_id)
         except ValidationError as err:
             abort(400, message=err.messages)
+
+    @staticmethod
+    def handle_db_integrity_errors(err):
+        message = str(err.orig).lower()
+        field = message.split(':')[1].strip()
+
+        if 'unique constraint failed' in message:
+            abort(400, message='{} already exists'.format(field))
+
+        if 'not null constraint failed' in message:
+            abort(400, message='Cannot delete the item. A foreign key constraint fails: {}”'.format(field))

@@ -34,5 +34,5 @@ if __name__ == '__main__':
 
     app.run(debug=True)
 
-# TODO is it worth to handle exceptions for all db actions and return 500 ?
+
 # TODO consider using first_or_404 or get_or_404 methods
