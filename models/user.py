@@ -28,32 +28,6 @@ class UserModel(BaseModel):
         """Find the model by email"""
         return cls.query.filter_by(email=email).first()
 
-    @classmethod
-    def unique_field(cls, data, id=None):
-        email = data['email']
-
-        # method = put
-        if id:
-            item = cls.find_by_id(id)
-            if item:
-                existing_user = True
-            else:
-                existing_user = False
-
-            email_exists_in_db = bool(cls.find_by_email(email))
-            new_email_is_different = item.email != email
-
-            if existing_user:
-                if email_exists_in_db and new_email_is_different:
-                    raise ValidationError("Another user is registered with email '{}'.".format(email), field_name='email')
-
-        # method = post
-        elif cls.find_by_email(email):
-            # TODO this doesn't work, probably because of using flask-marshmallow
-            raise ValidationError("User with email '{}' already exists.".format(email), field_name='email')
-
-        return email
-
 
 class UserSchema(ma.ModelSchema):
     # additional validation in schema level

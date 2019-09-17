@@ -12,43 +12,47 @@ class BaseResource(Resource):
     def get(self, parent_id=None, id=None):
         """Retrieve all items from DB."""
         if parent_id:
-            self.model.verify_id(parent_id)
+            self.verify_parent_id_exists(parent_id)
 
-        if not id:
-            items = self.model.get_from_db(parent_id, id)
+        if id:
+            # get one
+            item = self.model.get_from_db(parent_id=parent_id, self_id=id)
+            if item:
+                return self.json(item)
+        else:
+            # return collection of items
+            items = self.model.get_from_db(parent_id=parent_id)
             return [self.json(item) for item in items]
-
-        # item = self.model.get_from_db(parent_id, id)
-        item = self.model.get_from_db(parent_id, id)
-
-        if item:
-            return self.json(item)
 
         abort(404, message='{} not found.'.format(self.name.title()))
 
     def post(self, parent_id=None):
         """Create a new item."""
         if parent_id:
-            self.model.verify_id(parent_id)
+            self.verify_parent_id_exists(parent_id)
 
         raw_data = request.get_json(force=True)
 
         try:
             item = self.schema().load(raw_data)
-            # item.validate(raw_data)
+            item.validate(raw_data)
         except ValidationError as err:
             abort(400, message=err.messages)
 
-        item.store_path_param(parent_id)
+        item.set_parent_id(parent_id)
         try:
             item.save_to_db()
+        # handle UNIQUE constraint failures
         except IntegrityError as err:
-            abort(400, message=str(err.orig))
+            abort(500, message=str(err.orig))
 
         return self.json(item), 201, {'Location': request.url + '/' + str(item.id)}
 
-    def put(self, id):
+    def put(self, id, parent_id=None):
         """Update item by id."""
+        if parent_id:
+            self.verify_parent_id_exists(parent_id)
+
         item = self.model.find_by_id(id)
 
         if item:
@@ -65,16 +69,24 @@ class BaseResource(Resource):
                 item.update(new_data)
                 item.save_to_db()
             except IntegrityError as err:
-                abort(400, message=str(err.orig))
+                abort(500, message=str(err.orig))
             return self.json(item)
 
         abort(404, message='{} not found.'.format(self.name.title()))
 
-    def delete(self, id):
+    def delete(self, id, parent_id=None):
         """Delete item by id."""
-        item = self.model.find_by_id(id)
+        if parent_id:
+            self.verify_parent_id_exists(parent_id)
+
+        item = self.model.get_from_db(parent_id=parent_id, self_id=id)
+
         if item:
-            item.delete_from_db()
+            try:
+                item.delete_from_db()
+            except IntegrityError as err:
+                abort(500, message=str(err.orig))
+
             return {'message': '{} deleted'.format(self.name.title())}
 
         abort(404, message='{} not found.'.format(self.name.title()))
@@ -91,3 +103,9 @@ class BaseResource(Resource):
         data = dict(item.__dict__)
         del data['_sa_instance_state']
         return data
+
+    def verify_parent_id_exists(self, parent_id):
+        try:
+            self.model.parent_id_exists(parent_id)
+        except ValidationError as err:
+            abort(400, message=err.messages)

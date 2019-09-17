@@ -9,7 +9,7 @@ class OrganizationModel(BaseModel):
     __tablename__ = 'organization'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250), nullable=False)
+    name = db.Column(db.String(250), nullable=False, unique=True)
     address_1 = db.Column(db.String(250))
     address_2 = db.Column(db.String(250))
     city = db.Column(db.String(80))
@@ -26,32 +26,6 @@ class OrganizationModel(BaseModel):
     def find_by_name(cls, name):
         """Find the model by name"""
         return cls.query.filter_by(name=name).first()
-
-    @classmethod
-    def unique_field(cls, data, id=None):
-        org_name = data['name']
-
-        # method = put
-        if id:
-            item = cls.find_by_id(id)
-            if item:
-                existing_org = True
-            else:
-                existing_org = False
-
-            org_exists_in_db = bool(cls.find_by_name(org_name))
-            new_name_is_different = item.name != org_name
-
-            if existing_org:
-                if org_exists_in_db and new_name_is_different:
-                    raise ValidationError("Another organization is registered with name '{}'.".format(org_name), field_name='name')
-
-        # method = post
-        elif cls.find_by_name(org_name):
-            # TODO this doesn't work, probably because of using flask-marshmallow
-            raise ValidationError("Organization with name '{}' already exists.".format(org_name), field_name='name')
-
-        return org_name
 
 
 class OrganizationSchema(ma.ModelSchema):

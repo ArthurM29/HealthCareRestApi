@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from flask_restful import abort
 from marshmallow import ValidationError
 
 from db import db, ma
@@ -32,23 +31,17 @@ class ClinicModel(BaseModel):
         return cls.query.filter_by(name=name).first()
 
     @staticmethod
-    def verify_id(path_id):
+    def parent_id_exists(path_id):
+        """Check if organization with id=path_id exists in the DB"""
         if not OrganizationModel.find_by_id(path_id):
-            abort(400, message='Organization does not exist.')
+            raise ValidationError('Organization with id={} does not exist.'.format(path_id))
 
-    def store_path_param(self, path_id):
-        self.organization_id = path_id
-
-    @classmethod
-    def get_from_db(cls, org_id=None, clinic_id=None):
-        if org_id:
-            return cls.query.filter_by(organization_id=org_id).all()
-        else:
-            return cls.find_by_id(clinic_id)
+    def set_parent_id(self, parent_id):
+        self.organization_id = parent_id
 
     @classmethod
-    def validate(cls, data, id=None):
-        cls.unique_field(data, 'name', id)
+    def get_from_db(cls, parent_field=None, parent_id=None, self_id=None):
+        return super().get_from_db(cls.organization_id, parent_id, self_id)
 
 
 class ClinicSchema(ma.ModelSchema):

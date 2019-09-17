@@ -18,7 +18,7 @@ api.add_resource(User, '/users/<string:id>', endpoint='user')
 api.add_resource(Organization, '/organizations', endpoint='organizations')
 api.add_resource(Organization, '/organizations/<string:id>', endpoint='organization')
 api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics', endpoint='clinics')
-api.add_resource(Clinic, '/clinics/<string:id>', endpoint='clinic')
+api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics/<string:id>', endpoint='clinic')
 
 if __name__ == '__main__':
     from db import db, ma

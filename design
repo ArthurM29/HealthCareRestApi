@@ -1,35 +1,85 @@
 Health Care API
 
 
-** requirements **
+** Overview **
 
 The HIMS system comprises of 2 parts: portal application and a medical device.
 
-Portal application manages health care provider, clinics, doctors, patients and medical devices, it allows doctors to prescribe tests to patients and view result reports. \
+- Portal application manages health care provider organization, clinics, clinicians, patients, tests and medical devices, it allows clinicians to run tests for patients and view result reports.
 
-Medical device runs assigned tests and submits results.
-
-
-
-Superadmin exists in the DB
-		creates org
-		creates user, passes org_id, stores in org_id
-
-		post clinics/1/doctors
-		doctors/1
-
-		doctors/1/patients
-
-		patient/id
+- Medical device runs assigned tests and submits results.
 
 
-A common flow:
 
-Superadmin
+** Roles and permission s**
 
-Only superadmin can:
-- create organization
--
+- Superadmin exists in the DB. Superadmin creates organization and admin user - owner of the organization, and passes this info to the organization admin.
+
+- Admin/owner creates clinics, users for clinicians, devices - passes this info to clinicians
+
+- Clinician registers patients, runs a tests for a patient, and prints test report after receiving test results
+
+
+
+
+** Routes and resources **
+
+
+- Organizations
+
+Create: POST    /organizations
+Update: PUT     /organizations/org_id
+Read:   GET all /organizations
+        GET one /organizations/org_id
+Delete: Don't allow to delete
+
+
+- Clinics
+
+Create: POST     /organizations/org_id/clinics
+Update: PUT      /organizations/org_id/clinics/clinic_id
+Read:   GET all  /organizations/org_id/clinics
+Read:   GET one  /organizations/org_id/clinics/clinic_id
+Delete: Don't allow to delete
+
+
+- Users
+
+Create: POST     /clinics/clinic_id/users
+Update: PUT      /clinics/clinic_id/users/user_id
+Read:   GET all  /clinics/clinic_id/users
+Read:   GET one  /clinics/clinic_id/users/user_id
+Read:   DELETE   /clinics/clinic_id/users/user_id
+
+
+- Patients (include tests as elements ?)
+
+Create: POST     /clinics/clinic_id/patients
+Update: PUT      /clinics/clinic_id/patients/patient_id
+Read:   GET all  /clinics/clinic_id/patients
+Read:   GET one  /clinics/clinic_id/patients/patient_id
+Read:   DELETE   /clinics/clinic_id/patients/patient_id
+
+
+- Instruments
+
+Create: POST     /clinics/clinic_id/instruments
+Update: PUT      /clinics/clinic_id/instruments/instruments_id
+Read:   GET all  /clinics/clinic_id/instruments
+Read:   GET one  /clinics/clinic_id/instruments/instruments_id
+Read:   DELETE   /clinics/clinic_id/instruments/instruments_id
+
+
+- Tests
+
+Create: POST     /instruments/instruments_id/tests
+Update: PUT      /instruments/instruments_id/tests/test_id
+Read:   GET all  /instruments/instruments_id/tests
+Read:   GET one  /instruments/instruments_id/tests/test_id
+Read:   DELETE   /instruments/instruments_id/tests/test_id
+
+
+
 
 
 Admin signs up and logs into the system
@@ -41,13 +91,6 @@ Device fetches tests assigned to itself, runs and submits results
 Doctor fetches test results and generates PDF reports
 
 
-
-
-users/
-create
-
-
-admin
 
 * Doctor portal side
 

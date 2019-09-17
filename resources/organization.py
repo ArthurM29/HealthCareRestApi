@@ -9,7 +9,7 @@ class Organization(BaseResource):
     model = OrganizationModel
     schema = OrganizationSchema
 
-    def delete(self, id):
+    def delete(self, **kwargs):
         abort(405)
 
 # TODO do we need put and delete for this ?
