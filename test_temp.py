@@ -1,68 +1,53 @@
-from test.models.UserModel import UserModel
-from test.api.users_api import UsersAPI
-
+# from test.models.UserModel import UserModel
+# from test.api.users_api import UsersAPI
+#
+# h = {"content": "application/xml"}
+#
 # user = UserModel()
-# users_api = UsersAPI(debug=True)
-# users_api.payload = user.json()
-# create_resp = users_api.create()
+# users_api = UsersAPI(payload=user.json(), headers=h, debug=True)
+# create_resp = users_api.create_user()
 # print(create_resp)
 #
-# get_resp = users_api.read(12)
+# get_resp = users_api.get_user(create_resp.json()['id'])
 # print(get_resp.text)
 
 
-from hypothesis import given, settings, Verbosity
-import hypothesis.strategies as st
+# class Temperature:
+#     def __init__(self, temp):
+#         self._temperature = temp
+#
+#     @property
+#     def temperature(self):
+#         print("Getting value")
+#         return float(self._temperature)
+#
+#     @temperature.setter
+#     def temperature(self, val):
+#         print("Setting value")
+#         self._temperature = val
+#
+#     def check_temp(self):
+#         print(self._temperature)
+#
+#
+# t = Temperature(44)
+# print(t.temperature)
+#
+# t.temperature = 33
+# print(t.temperature)
+#
+# t.check_temp()
 
 
-# def digit_sum(num):
-#     if num <0:
-#         return 0
-#     sum = 0
-#     while num != 0:
-#         digit = num % 10
-#         num = num // 10
-#         sum += digit
-#
-#     return sum
-#
-#
-# @settings(verbosity=Verbosity.verbose)
-# @given(st.integers())
-# def test_digit_sum(s):
-#     assert isinstance(digit_sum(s), int)
-#     assert digit_sum(s) >= 0
+import urllib.parse
 
-# def word_count(s):
-#     return len(s.split())
-#
-#
-#
-# @settings(verbosity=Verbosity.verbose)
-# @given(st.text())
-# def test_word_count(s):
-#     assert isinstance(word_count(s), int)
-#     assert word_count(s) >= 0
-#     print(word_count(s))
-
-# def sort_list(list_):
-#     for i in range(len(list_) - 1):
-#         for j in range(len(list_) - 1):
-#             if list_[j] > list_[j + 1]:
-#                 temp = list_[j]
-#                 list_[j] = list_[j + 1]
-#                 list_[j + 1] = temp
-#     return list_
-#
-#
-# @settings(verbosity=Verbosity.verbose)
-# @given(st.lists(st.integers()))
-# def test_sort_list(ul):
-#     sl = sort_list(ul)
-#     assert isinstance(sl, list)
-#     assert Counter(ul) == Counter(sl)
-#     assert all(
-#         x <= y for x, y in zip(sl, sl[1:])
-#     )
+BASE_URL = 'http://127.0.0.1:5000'
+USERS_ROUTE = '/users'
+USERS_ID_ROUTE = '/users/{id}'
 
 
+id = 11
+
+url = urllib.parse.urljoin(BASE_URL, USERS_ROUTE).format(id=id)
+print(url)
+print('Hello '.format('world'))

@@ -119,3 +119,6 @@ class BaseResource(Resource):
 
         if 'not null constraint failed' in message:
             abort(400, message='Cannot delete the item. A foreign key constraint fails: {}”'.format(field))
+
+        # unhandled cases
+        abort(400, message=message)

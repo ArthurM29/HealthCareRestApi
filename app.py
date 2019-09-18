@@ -5,12 +5,12 @@ from resources.user import User
 from resources.organization import Organization
 from resources.clinic import Clinic
 
-
 app = Flask(__name__)
 api = Api(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.sqlite'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # turn off Flask-SQLAlchemy modification tracker and leave SQLAlchemy tracker
+app.config[
+    'SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # turn off Flask-SQLAlchemy modification tracker and leave SQLAlchemy tracker
 app.config['BUNDLE_ERRORS'] = True  # show all errors handled by the RequestParser together
 
 api.add_resource(User, '/users', endpoint='users')
@@ -33,6 +33,3 @@ if __name__ == '__main__':
 
 
     app.run(debug=True)
-
-
-# TODO consider using first_or_404 or get_or_404 methods

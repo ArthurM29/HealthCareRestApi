@@ -1,21 +1,33 @@
 from test.api.api_call import ApiCall
 from test.config.config import URL
+from test.models.UserModel import UserModel
 
 
 class UsersAPI(ApiCall):
     path = URL.USERS_ROUTE
 
-    def __init__(self, headers=None, payload=None, **kwargs):
+    def __init__(self, headers=None, payload=None, query_params=None, debug=False, **kwargs):
         if headers is None:
             self.headers = {'content-type': 'application/json', 'accept': 'application/json'}
         else:
             self.headers = headers
-        super().__init__(method='post', headers=self.headers, payload=payload, **kwargs)
 
-    def create(self):
+        if payload is None:
+            self.payload = UserModel()
+        else:
+            self.payload = payload
+
+        super().__init__(headers=self.headers, payload=self.payload, query_params=query_params, debug=debug,
+                         kwargs=kwargs)
+
+    def create_user(self):
         return self.post()
 
-    def read(self, id=None):
-        return self.get(id)
+    def get_user(self, id_=None):
+        return self.get(id_)
 
+    def update_user(self, id_=None):
+        return self.put(id_)
 
+    def delete_user(self, id_=None):
+        return self.delete(id_)
