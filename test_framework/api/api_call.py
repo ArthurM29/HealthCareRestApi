@@ -2,6 +2,7 @@ import urllib.parse
 import requests
 import json
 from test.config.config import URL
+from termcolor import colored
 
 
 class ApiCall:
@@ -10,7 +11,7 @@ class ApiCall:
 
     def __init__(self, headers=None, payload=None, query_params=None, debug=False, **kwargs):
         self.id = None
-        self._url = self.url  #TODO is this ok ?
+        self._url = self.url  # TODO is this ok ?
         self.headers = headers
         self.payload = payload
         self.query_params = query_params
@@ -57,7 +58,8 @@ class ApiCall:
         self._url = self._url + '/' + str(id_)
 
     def log_request(self, method):
-        log = f"\n---->Request: \n{method.upper()} {self. url}"
+        log = colored(f"\n---->Request", color='cyan')
+        log += f"\n{method.upper()} {self.url}"
         if self.headers:
             log += f"\nheaders = {self.headers}"
         if self.query_params:
@@ -70,7 +72,8 @@ class ApiCall:
 
     @staticmethod
     def log_response(response):
-        log = f"\n<----Response: \nStatus code: {response.status_code}"
+        log = colored(f"\n<----Response", color='cyan')
+        log += f"\nStatus code: {response.status_code if response.ok else colored(response.status_code, color='red')}"
         if response:
             log += f"\nBody: {json.dumps(response.json(), indent=2)}"
         if not response.ok:
