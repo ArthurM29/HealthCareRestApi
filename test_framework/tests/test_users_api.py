@@ -6,11 +6,11 @@ from pytest import mark as m
 
 from assertpy import assert_that
 
-email_format_cases = [("empty_email", ""),
-                      ("email_without_local_part", "@mac.com"),
-                      ("email_without_@", "myemailmac.com"),
-                      ("email_without_dot", "myemail@maccom"),
-                      ("email_without_domain", "myemail@mac.")]
+max_length_exceed_cases = [("empty_email", ""),
+                           ("email_without_local_part", "@mac.com"),
+                           ("email_without_@", "myemailmac.com"),
+                           ("email_without_dot", "myemail@maccom"),
+                           ("email_without_domain", "myemail@mac.")]
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ class TestCreateUser:
         assert_that(response.json()['message']['email']).contains('Length must be between 1 and 250.')
 
     @m.it("Verify only valid email values are accepted")
-    @pytest.mark.parametrize("case, email", email_format_cases)
+    @pytest.mark.parametrize("case, email", max_length_exceed_cases)
     def test_email_format_is_validated(self, case, email, users_api):
         print(colored("\n\nRunning test_framework case: {}".format(case), color='yellow'))
         users_api.payload.email = email
@@ -132,7 +132,7 @@ class TestCreateUser:
         assert response.status_code == 201
         assert response.json()['user_level'] == 'admin'
 
-    @m.describe("Verify able to create a user without providing optional fields")
+    @m.it("Verify able to create a user without providing optional fields")
     def test_optional_fields(self, users_api):
         optional_fields = ['first_name', 'last_name', 'address_1', 'address_2', 'city', 'state', 'zip_code', 'country',
                            'phone']
@@ -142,11 +142,41 @@ class TestCreateUser:
         for field in optional_fields:
             assert response.json().get(field) is None
 
+    @m.it("Verify all fields are stored in DB")
+    def test_able_to_create_user(self, users_api):
+        sent_data = users_api.payload
+        post_response = users_api.create_user()
+        assert post_response.status_code == 201
+
+        get_response = users_api.get_user(post_response.json()['id'])
+        assert get_response.status_code == 200
+
+        created_user = get_response.json()
+
+        assert_that(created_user).contains('id')
+        assert_that(created_user['email']).is_equal_to(sent_data.email)
+        assert_that(created_user).does_not_contain('password')
+        assert_that(created_user).does_not_contain('confirm_password')
+        assert_that(created_user['first_name']).is_equal_to(sent_data.first_name)
+        assert_that(created_user['last_name']).is_equal_to(sent_data.last_name)
+        assert_that(created_user['address_1']).is_equal_to(sent_data.address_1)
+        assert_that(created_user['address_2']).is_equal_to(sent_data.address_2)
+        assert_that(created_user['city']).is_equal_to(sent_data.city)
+        assert_that(created_user['state']).is_equal_to(sent_data.state)
+        assert_that(created_user['country']).is_equal_to(sent_data.country)
+        assert_that(created_user['zip_code']).is_equal_to(sent_data.zip_code)
+        assert_that(created_user['country']).is_equal_to(sent_data.country)
+        assert_that(created_user['phone']).is_equal_to(sent_data.phone)
+        assert_that(created_user['user_level']).is_equal_to(sent_data.user_level)
+        assert_that(created_user).contains('created_at_utc')
+
     @m.it("Verify all fields accept max length values")
     def test_user_max_length_values_accepted(self, users_api):
         users_api.payload.email = '{}@gmail.com'.format(random_string(240))
+
         users_api.payload.password = random_string(128)
         users_api.payload.confirm_password = users_api.payload.password
+
         users_api.payload.first_name = random_string(128)
         users_api.payload.last_name = random_string(128)
         users_api.payload.address_1 = random_string(250)
@@ -157,55 +187,49 @@ class TestCreateUser:
         users_api.payload.country = random_string(80)
         users_api.payload.phone = random_string(80)
 
-        response = users_api.create_user()
-        assert response.status_code == 201
+        sent_data = users_api.payload
+        post_response = users_api.create_user()
+        assert post_response.status_code == 201
 
+        get_response = users_api.get_user(post_response.json()['id'])
+        assert get_response.status_code == 200
+
+        created_user = get_response.json()
+
+        assert_that(created_user['email']).is_equal_to(sent_data.email)
+        assert_that(created_user['first_name']).is_equal_to(sent_data.first_name)
+        assert_that(created_user['last_name']).is_equal_to(sent_data.last_name)
+        assert_that(created_user['address_1']).is_equal_to(sent_data.address_1)
+        assert_that(created_user['address_2']).is_equal_to(sent_data.address_2)
+        assert_that(created_user['city']).is_equal_to(sent_data.city)
+        assert_that(created_user['state']).is_equal_to(sent_data.state)
+        assert_that(created_user['country']).is_equal_to(sent_data.country)
+        assert_that(created_user['zip_code']).is_equal_to(sent_data.zip_code)
+        assert_that(created_user['country']).is_equal_to(sent_data.country)
+        assert_that(created_user['phone']).is_equal_to(sent_data.phone)
+
+    max_length_exceed_cases = [
+        ("email", '{}@gmail.com'.format(random_string(241)), "Length must be between 1 and 250."),
+        ("confirm_password", random_string(129), "Length must be between 1 and 128."),
+        ("password", random_string(129), "Length must be between 1 and 128."),
+        ("first_name", random_string(129), "Longer than maximum length 128."),
+        ("last_name", random_string(129), "Longer than maximum length 128."),
+        ("address_1", random_string(251), "Longer than maximum length 250."),
+        ("address_2", random_string(251), "Longer than maximum length 250."),
+        ("city", random_string(81), "Longer than maximum length 80."),
+        ("state", random_string(81), "Longer than maximum length 80."),
+        ("zip_code", random_string(21), "Longer than maximum length 20."),
+        ("country", random_string(81), "Longer than maximum length 80."),
+        ("phone", random_string(129), "Longer than maximum length 80.")]
+
+    @pytest.mark.parametrize("field, value, message", max_length_exceed_cases)
     @m.it("Verify all fields reject values longer than max length")
-    def test_user_max_length_values_accepted(self, users_api):
-        users_api.payload.email = '{}@gmail.com'.format(random_string(241))
-        users_api.payload.password = random_string(128)
-        users_api.payload.confirm_password = users_api.payload.password
-        users_api.payload.first_name = random_string(128)
-        users_api.payload.last_name = random_string(128)
-        users_api.payload.address_1 = random_string(250)
-        users_api.payload.address_2 = random_string(250)
-        users_api.payload.city = random_string(80)
-        users_api.payload.state = random_string(80)
-        users_api.payload.zip_code = random_string(20)
-        users_api.payload.country = random_string(80)
-        users_api.payload.phone = random_string(80)
-
+    def test_user_max_length_values_rejected(self, field, value, message, users_api):
+        setattr(users_api.payload, field, value)
         response = users_api.create_user()
-        assert response.status_code == 201
+        assert response.status_code == 400
+        assert response.json()['message'][field][0] == message
 
-
-    # def test_able_to_create_user():
-    #
-    #     post_response = requests.post(url, json=data)
-    #     assert post_response.status_code == 201
-    #
-    #     get_response = requests.get(url + '/' + str(post_response.json()['id']))
-    #     get_user = get_response.json()
-    #
-    #     assert_that(get_response.status_code).is_equal_to(200)
-    #     assert_that(get_user['email']).is_equal_to(data['email'])
-    #     assert_that(get_user).does_not_contain('password')
-    #     assert_that(get_user).does_not_contain('confirm_password')
-    #     assert_that(get_user['first_name']).is_equal_to(data['first_name'])
-    #     assert_that(get_user['last_name']).is_equal_to(data['last_name'])
-    #     assert_that(get_user['address_1']).is_equal_to(data['address_1'])
-    #     assert_that(get_user['address_2']).is_equal_to(data['address_2'])
-    #     assert_that(get_user['city']).is_equal_to(data['city'])
-    #     assert_that(get_user['state']).is_equal_to(data['state'])
-    #     assert_that(get_user['country']).is_equal_to(data['country'])
-    #     assert_that(get_user['zip_code']).is_equal_to(data['zip_code'])
-    #     assert_that(get_user['country']).is_equal_to(data['country'])
-    #     assert_that(get_user['phone']).is_equal_to(data['phone'])
-    #     assert_that(get_user['user_level']).is_equal_to(data['user_level'])
-    #
-    #     print(json.dumps(get_user, indent=2))
-
-    # TODO From post - add lowercase, create and get
     # TODO - add Put, Get, Delete
 
 
