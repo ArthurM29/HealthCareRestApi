@@ -1,4 +1,4 @@
-from marshmallow import post_load, ValidationError, validate, fields
+from marshmallow import post_load, ValidationError, validate, fields, pre_load
 
 from db import db, ma
 from models.base import BaseModel
@@ -31,8 +31,9 @@ class UserModel(BaseModel):
 
 class UserSchema(ma.ModelSchema):
     # additional validation in schema level
-    email = fields.Email(validate=validate.Length(max=250), required=True)
-    confirm_password = fields.String(validate=validate.Length(max=128), required=True)
+    email = fields.Email(validate=validate.Length(min=1, max=250), required=True)
+    password = fields.String(validate=validate.Length(min=1, max=128), required=True)
+    confirm_password = fields.String(validate=validate.Length(min=1, max=128), required=True)
     user_level = fields.Str(validate=validate.OneOf(["admin", "user"]), required=True)
 
     class Meta:
@@ -42,11 +43,17 @@ class UserSchema(ma.ModelSchema):
         dump_only = ['id', 'created_at_utc']
         datetimeformat = "%Y-%m-%d %H:%M:%S"
 
+    @pre_load
+    def lower_case_fields(self, data, **kwargs):
+        if data.get('user_level'):
+            data['user_level'] = data['user_level'].lower().strip()
+        if data.get('email'):
+            data['email'] = data['email'].lower().strip()
+        return data
+
     @post_load
     def create_user(self, data, **kwargs):
         """Get dictionary of deserialized validated data and return UserModel object"""
-        data['user_level'] = data['user_level'].lower().strip()
-        data['email'] = data['email'].lower().strip()
         if data['confirm_password'] != data['password']:
             raise ValidationError("Passwords do not match", field_name='password')
 

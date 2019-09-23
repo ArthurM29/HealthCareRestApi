@@ -1,4 +1,4 @@
-from test.models.BaseModel import BaseModel
+from test_framework.models.BaseModel import BaseModel
 from common.utils import random_string
 
 

@@ -1,6 +1,6 @@
-from test.api.api_call import ApiCall
-from test.config.config import URL
-from test.models.UserModel import UserModel
+from test_framework.api.api_call import ApiCall
+from test_framework.config.config import URL
+from test_framework.models.UserModel import UserModel
 
 
 class UsersAPI(ApiCall):
@@ -21,10 +21,14 @@ class UsersAPI(ApiCall):
                          kwargs=kwargs)
 
     def create_user(self):
+        #TODO maybe this should return User object ?
         return self.post()
 
-    def get_user(self, id_=None):
+    def get_user(self, id_):
         return self.get(id_)
+
+    def get_users(self):
+        return self.get()
 
     def update_user(self, id_=None):
         return self.put(id_)

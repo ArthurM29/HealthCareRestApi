@@ -1,7 +1,7 @@
 import urllib.parse
 import requests
 import json
-from test.config.config import URL
+from test_framework.config.config import URL
 from termcolor import colored
 
 
@@ -11,7 +11,7 @@ class ApiCall:
 
     def __init__(self, headers=None, payload=None, query_params=None, debug=False, **kwargs):
         self.id = None
-        self._url = self.url  # TODO is this ok ?
+        self._url = urllib.parse.urljoin(self.base_url, self.path)  #TODO use urlparse to parse into pieces and rejoin
         self.headers = headers
         self.payload = payload
         self.query_params = query_params
@@ -20,19 +20,21 @@ class ApiCall:
 
     @property
     def url(self):
-        url = urllib.parse.urljoin(self.base_url, self.path)
+        # getter
         if self.id:
-            url.format(id=self.id)
-        return url
+            return self._url + '/' + str(self.id)
+        else:
+            return self._url
 
     @url.setter
     def url(self, url):
+        # setter
         self._url = url
 
     def call(self, method):
         if self.debug:
             self.log_request(method)
-        response = requests.request(method, self._url, data=self.payload.json(), headers=self.headers,
+        response = requests.request(method, self.url, data=self.payload.json(), headers=self.headers,
                                     params=self.query_params)
         if self.debug:
             self.log_response(response)
@@ -42,20 +44,17 @@ class ApiCall:
         return self.call('post')
 
     def put(self, id_):
-        self.append_id(id_)
+        self.id = id_
         return self.call('put')
 
-    def get(self, id=None):
-        if id:
-            self.append_id(id)
+    def get(self, id_=None):
+        if id_:
+            self.id = id_
         return self.call('get')
 
     def delete(self, id_):
-        self.append_id(id_)
+        self.id = id_
         return self.call('delete')
-
-    def append_id(self, id_):
-        self._url = self._url + '/' + str(id_)
 
     def log_request(self, method):
         log = colored(f"\n---->Request", color='cyan')

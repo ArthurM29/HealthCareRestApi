@@ -27,7 +27,10 @@ class BaseModel(object):
 
         remove_el(dic, path_list)
 
-    def remove_attributes(self, attributes):
+    def remove_fields(self, attributes):
         for attr in attributes:
             delattr(self, attr)
+
+    def remove_field(self, attr):
+        delattr(self, attr)
 

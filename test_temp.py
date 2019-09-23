@@ -1,5 +1,6 @@
-# from test.models.UserModel import UserModel
-# from test.api.users_api import UsersAPI
+from test_framework.models.UserModel import UserModel
+
+# from test_framework.api.users_api import UsersAPI
 #
 # h = {"content": "application/xml"}
 #
@@ -11,43 +12,59 @@
 # get_resp = users_api.get_user(create_resp.json()['id'])
 # print(get_resp.text)
 
-
-# class Temperature:
-#     def __init__(self, temp):
-#         self._temperature = temp
-#
-#     @property
-#     def temperature(self):
-#         print("Getting value")
-#         return float(self._temperature)
-#
-#     @temperature.setter
-#     def temperature(self, val):
-#         print("Setting value")
-#         self._temperature = val
-#
-#     def check_temp(self):
-#         print(self._temperature)
+# import sqlite3
 #
 #
-# t = Temperature(44)
-# print(t.temperature)
+# def exec_db_query(db_file, sql, params=()):
+#     """ take sql query as string and parameters as tuple """
+#     connection = cursor = None
+#     try:
+#         connection = sqlite3.connect(db_file)
+#         cursor = connection.cursor()
+#         cursor.execute(sql, params)
+#         # make the changes to the database persistent
+#         connection.commit()
+#         rows = cursor.fetchall()
+#         return rows
+#     except sqlite3.DatabaseError as err:
+#         print(err)
+#     finally:
+#         # close communication with the database
+#         if cursor:
+#             cursor.close()
+#         if connection:
+#             connection.close()
 #
-# t.temperature = 33
-# print(t.temperature)
+# sql = 'select  * from user where email=?'
 #
-# t.check_temp()
+# result = exec_db_query('data.sqlite', sql, params=('abc@mac.com',))
+# print(result)
 
 
-import urllib.parse
+class Alphabet:
+    def __init__(self, url, id=None):
+        self._url = url
+        self.id = id
 
-BASE_URL = 'http://127.0.0.1:5000'
-USERS_ROUTE = '/users'
-USERS_ID_ROUTE = '/users/{id}'
+        # getting the values
+
+    @property
+    def url(self):
+        print('Getting value')
+        if self.id:
+            return self._url + '/' + str(self.id)
+        else:
+            return self._url
+
+        # setting the values
+
+    @url.setter
+    def url(self, url):
+        print('Setting value to ' + url)
+        self._url = url
 
 
-id = 11
+x = Alphabet('https://macadamian.com')
+print(x.url)
 
-url = urllib.parse.urljoin(BASE_URL, USERS_ROUTE).format(id=id)
-print(url)
-print('Hello '.format('world'))
+
