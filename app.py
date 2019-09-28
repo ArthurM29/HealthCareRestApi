@@ -4,6 +4,7 @@ from flask_restful import Api
 from resources.user import User
 from resources.organization import Organization
 from resources.clinic import Clinic
+from resources.patient import Patient
 
 app = Flask(__name__)
 api = Api(app)
@@ -19,6 +20,8 @@ api.add_resource(Organization, '/organizations', endpoint='organizations')
 api.add_resource(Organization, '/organizations/<string:id>', endpoint='organization')
 api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics', endpoint='clinics')
 api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics/<string:id>', endpoint='clinic')
+api.add_resource(Patient, '/clinics/<string:parent_id>/patients', endpoint='patients')
+api.add_resource(Patient, '/clinics/<string:parent_id>/patients/<string:id>', endpoint='patient')
 
 if __name__ == '__main__':
     from db import db, ma

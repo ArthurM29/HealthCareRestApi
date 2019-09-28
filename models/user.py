@@ -13,6 +13,7 @@ class UserModel(BaseModel):
     password = db.Column(db.String(128), nullable=False)
     first_name = db.Column(db.String(128))
     last_name = db.Column(db.String(128))
+    speciality = db.Column(db.String(250))
     address_1 = db.Column(db.String(250))
     address_2 = db.Column(db.String(250))
     city = db.Column(db.String(80))
@@ -34,7 +35,7 @@ class UserSchema(ma.ModelSchema):
     email = fields.Email(validate=validate.Length(min=1, max=250), required=True)
     password = fields.String(validate=validate.Length(min=1, max=128), required=True)
     confirm_password = fields.String(validate=validate.Length(min=1, max=128), required=True)
-    user_level = fields.Str(validate=validate.OneOf(["admin", "user"]), required=True)
+    user_level = fields.Str(validate=validate.OneOf(["admin", "clinician"]), required=True)
 
     class Meta:
         model = UserModel
@@ -55,7 +56,10 @@ class UserSchema(ma.ModelSchema):
     def create_user(self, data, **kwargs):
         """Get dictionary of deserialized validated data and return UserModel object"""
         if data['confirm_password'] != data['password']:
-            raise ValidationError("Passwords do not match", field_name='password')
+            raise ValidationError("Passwords do not match.", field_name='password')
+        if data['user_level'] == 'clinician':
+            if not data.get('speciality'):
+                raise ValidationError("The field is required for clinicians.", field_name='speciality')
 
         data = {k: v for k, v in data.items() if k != 'confirm_password'}
         return data
