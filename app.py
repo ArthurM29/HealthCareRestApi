@@ -5,6 +5,7 @@ from resources.user import User
 from resources.organization import Organization
 from resources.clinic import Clinic
 from resources.patient import Patient
+from resources.instrument import Instrument
 
 app = Flask(__name__)
 api = Api(app)
@@ -22,6 +23,8 @@ api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics', endpoint='
 api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics/<string:id>', endpoint='clinic')
 api.add_resource(Patient, '/clinics/<string:parent_id>/patients', endpoint='patients')
 api.add_resource(Patient, '/clinics/<string:parent_id>/patients/<string:id>', endpoint='patient')
+api.add_resource(Instrument, '/clinics/<string:parent_id>/instruments', endpoint='instruments')
+api.add_resource(Instrument, '/clinics/<string:parent_id>/instruments/<string:id>', endpoint='instrument')
 
 if __name__ == '__main__':
     from db import db, ma
