@@ -41,30 +41,33 @@ from test_framework.models.UserModel import UserModel
 # print(result)
 
 
-class Alphabet:
-    def __init__(self, url, id=None):
-        self._url = url
-        self.id = id
+# class Alphabet:
+#     def __init__(self, url, id=None):
+#         self._url = url
+#         self.id = id
+#
+#         # getting the values
+#
+#     @property
+#     def url(self):
+#         print('Getting value')
+#         if self.id:
+#             return self._url + '/' + str(self.id)
+#         else:
+#             return self._url
+#
+#         # setting the values
+#
+#     @url.setter
+#     def url(self, url):
+#         print('Setting value to ' + url)
+#         self._url = url
+#
+#
+# x = Alphabet('https://macadamian.com')
+# print(x.url)
 
-        # getting the values
+from random import randrange
 
-    @property
-    def url(self):
-        print('Getting value')
-        if self.id:
-            return self._url + '/' + str(self.id)
-        else:
-            return self._url
-
-        # setting the values
-
-    @url.setter
-    def url(self, url):
-        print('Setting value to ' + url)
-        self._url = url
-
-
-x = Alphabet('https://macadamian.com')
-print(x.url)
-
-
+for i  in range(20):
+    print(randrange(2, 9))
