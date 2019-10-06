@@ -7,6 +7,7 @@ from resources.clinic import Clinic
 from resources.patient import Patient
 from resources.instrument import Instrument
 from resources.pairing_code import PairingCode
+from resources.test import Test
 
 app = Flask(__name__)
 api = Api(app)
@@ -26,6 +27,9 @@ api.add_resource(Patient, '/portal-api/clinics/<string:parent_id>/patients', end
 api.add_resource(Patient, '/portal-api/clinics/<string:parent_id>/patients/<string:id>', endpoint='patient')
 api.add_resource(Instrument, '/portal-api/clinics/<string:parent_id>/instruments', endpoint='instruments')
 api.add_resource(Instrument, '/portal-api/clinics/<string:parent_id>/instruments/<string:id>', endpoint='instrument')
+api.add_resource(Test, '/portal-api/patients/<string:parent_id>/tests', endpoint='tests')
+api.add_resource(Test, '/portal-api/patients/<string:parent_id>/tests/<string:id>', endpoint='test')
+
 api.add_resource(PairingCode, '/instrument-api/pairing_code', endpoint='pairing_code')
 
 if __name__ == '__main__':

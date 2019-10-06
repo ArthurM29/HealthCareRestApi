@@ -67,7 +67,6 @@ from test_framework.models.UserModel import UserModel
 # x = Alphabet('https://macadamian.com')
 # print(x.url)
 
-from random import randrange
+from random import choice
 
-for i  in range(20):
-    print(randrange(2, 9))
+print(choice(['positive', 'negative']))
