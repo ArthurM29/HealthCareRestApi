@@ -16,17 +16,17 @@ app.config[
     'SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # turn off Flask-SQLAlchemy modification tracker and leave SQLAlchemy tracker
 app.config['BUNDLE_ERRORS'] = True  # show all errors handled by the RequestParser together
 
-api.add_resource(User, '/users', endpoint='users')
-api.add_resource(User, '/users/<string:id>', endpoint='user')
-api.add_resource(Organization, '/organizations', endpoint='organizations')
-api.add_resource(Organization, '/organizations/<string:id>', endpoint='organization')
-api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics', endpoint='clinics')
-api.add_resource(Clinic, '/organizations/<string:parent_id>/clinics/<string:id>', endpoint='clinic')
-api.add_resource(Patient, '/clinics/<string:parent_id>/patients', endpoint='patients')
-api.add_resource(Patient, '/clinics/<string:parent_id>/patients/<string:id>', endpoint='patient')
-api.add_resource(Instrument, '/clinics/<string:parent_id>/instruments', endpoint='instruments')
-api.add_resource(Instrument, '/clinics/<string:parent_id>/instruments/<string:id>', endpoint='instrument')
-api.add_resource(PairingCode, '/instruments/pairing_code', endpoint='pairing_code')
+api.add_resource(User, '/portal-api/users', endpoint='users')
+api.add_resource(User, '/portal-api/users/<string:id>', endpoint='user')
+api.add_resource(Organization, '/portal-api/organizations', endpoint='organizations')
+api.add_resource(Organization, '/portal-api/organizations/<string:id>', endpoint='organization')
+api.add_resource(Clinic, '/portal-api/organizations/<string:parent_id>/clinics', endpoint='clinics')
+api.add_resource(Clinic, '/portal-api/organizations/<string:parent_id>/clinics/<string:id>', endpoint='clinic')
+api.add_resource(Patient, '/portal-api/clinics/<string:parent_id>/patients', endpoint='patients')
+api.add_resource(Patient, '/portal-api/clinics/<string:parent_id>/patients/<string:id>', endpoint='patient')
+api.add_resource(Instrument, '/portal-api/clinics/<string:parent_id>/instruments', endpoint='instruments')
+api.add_resource(Instrument, '/portal-api/clinics/<string:parent_id>/instruments/<string:id>', endpoint='instrument')
+api.add_resource(PairingCode, '/instrument-api/pairing_code', endpoint='pairing_code')
 
 if __name__ == '__main__':
     from db import db, ma

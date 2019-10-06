@@ -3,18 +3,25 @@ from sqlalchemy.exc import IntegrityError
 from flask_restful import abort, request
 
 from resources.base import BaseResource
-from models.instrument import InstrumentModel
+from resources.instrument import InstrumentModel
+from models.pairing_code import PairingCodeSchema
 
 
 class PairingCode(BaseResource):
     """This resource does not have a model"""
     name = 'pairing_code'
-    model = InstrumentModel
+    model = None
+    schema = PairingCodeSchema
 
     def post(self, parent_id=None):
         """Pair the instrument."""
-        # TODO add model/schema to validate  input json
         raw_data = request.get_json(force=True)
+
+        try:
+            self.schema().load(raw_data)
+        except ValidationError as err:
+            abort(400, message=err.messages)
+
         instruments_name = raw_data['instrument_name']
         pairing_code = raw_data['pairing_code']
         instrument = InstrumentModel.find_by_name(instruments_name)
