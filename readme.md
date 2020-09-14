@@ -2,7 +2,7 @@
 
 
 
-##Objective
+## Objective
 Describes API for Health Care management, using following data models and operations:
 - Organization CRUD
 - Clinic CRUD
