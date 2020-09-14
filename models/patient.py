@@ -46,7 +46,7 @@ class PatientModel(BaseModel):
         return super().get_from_db(cls.clinic_id, parent_id, self_id)
 
 
-class PatientSchema(ma.ModelSchema):
+class PatientSchema(ma.SQLAlchemyAutoSchema):
     # additional validation in schema level
     first_name = fields.String(validate=validate.Length(min=1, max=250), required=True)
     last_name = fields.String(validate=validate.Length(min=1, max=250), required=True)

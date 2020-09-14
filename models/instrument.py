@@ -40,7 +40,7 @@ class InstrumentModel(BaseModel):
         return super().get_from_db(cls.clinic_id, parent_id, self_id)
 
 
-class InstrumentSchema(ma.ModelSchema):
+class InstrumentSchema(ma.SQLAlchemyAutoSchema):
     # additional validation in schema level
     name = fields.String(validate=validate.Length(min=1, max=250), required=True)
 

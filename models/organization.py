@@ -28,7 +28,7 @@ class OrganizationModel(BaseModel):
         return cls.query.filter_by(name=name).first()
 
 
-class OrganizationSchema(ma.ModelSchema):
+class OrganizationSchema(ma.SQLAlchemyAutoSchema):
     # doesn't recognize the field without this
     owner_id = fields.Integer(required=True)
 

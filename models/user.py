@@ -30,7 +30,7 @@ class UserModel(BaseModel):
         return cls.query.filter_by(email=email).first()
 
 
-class UserSchema(ma.ModelSchema):
+class UserSchema(ma.SQLAlchemyAutoSchema):
     # additional validation in schema level
     email = fields.Email(validate=validate.Length(min=1, max=250), required=True)
     password = fields.String(validate=validate.Length(min=1, max=128), required=True)

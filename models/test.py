@@ -38,7 +38,7 @@ class TestModel(BaseModel):
         return super().get_from_db(cls.patient_id, parent_id, self_id)
 
 
-class TestSchema(ma.ModelSchema):
+class TestSchema(ma.SQLAlchemyAutoSchema):
     # additional validation in schema level
     instrument_id = fields.Integer(required=True)
 

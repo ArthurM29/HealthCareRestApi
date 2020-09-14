@@ -44,7 +44,7 @@ class ClinicModel(BaseModel):
         return super().get_from_db(cls.organization_id, parent_id, self_id)
 
 
-class ClinicSchema(ma.ModelSchema):
+class ClinicSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = ClinicModel
         ordered = True
